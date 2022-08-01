@@ -4,3 +4,75 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
+blocks:
+  - name: Install
+    task:
+      jobs:
+        - name: Download Modules
+          commands:
+            - sem-version go 1.16
+            - checkout
+            - cache restore
+            - go mod vendor
+            - cache store
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+    dependencies: []
+  - name: Test
+    dependencies:
+      - Install
+    task:
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+        - name: APP_DB_USERNAME
+          value: postgres
+        - name: APP_DB_PASSWORD
+          value: password
+        - name: APP_DB_NAME
+          value: postgres
+      jobs:
+        - name: Test
+          commands:
+            - go test ./...
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - sem-service start postgres
+          - checkout
+          - cache restore
+          - go mod vendor
+          - cache store
+  - name: Build
+    dependencies:
+      - Test
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - go build -v -o tdd-practice.bin
+            - artifact push project --force tdd-practice.bin
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+        - name: APP_DB_USERNAME
+          value: postgres
+        - name: APP_DB_PASSWORD
+          value: password
+        - name: APP_DB_NAME
+          value: postgres
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - sem-service start postgres
+          - checkout
+          - cache restore
+          - go mod vendor
+          - cache store
