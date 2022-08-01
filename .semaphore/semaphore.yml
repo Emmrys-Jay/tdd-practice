@@ -34,6 +34,14 @@ blocks:
         - name: Test
           commands:
             - go test ./...
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - sem-service start postgres
+          - checkout
+          - 'cache restore '
+          - go mod vendor
+          - source env-sample
   - name: Build
     dependencies:
       - Test
@@ -43,3 +51,16 @@ blocks:
           commands:
             - go build -v -o tdd-practice.bin
             - artifact push project --force tdd-practice.bin
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+      prologue:
+        commands:
+          - sem-version go 1.13
+          - sem-service start postgres
+          - checkout
+          - 'cache restore '
+          - go mod vendor
+          - source env-sample
