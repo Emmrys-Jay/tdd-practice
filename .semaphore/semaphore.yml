@@ -40,6 +40,14 @@ blocks:
         - name: Test
           commands:
             - go test ./...
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - sem-service start postgres
+          - checkout
+          - cache restore
+          - go mod vendor
+          - cache store
   - name: Build
     dependencies:
       - Test
@@ -60,3 +68,11 @@ blocks:
           value: password
         - name: APP_DB_NAME
           value: postgres
+      prologue:
+        commands:
+          - sem-version go 1.16
+          - sem-service start postgres
+          - checkout
+          - cache restore
+          - go mod vendor
+          - cache store
