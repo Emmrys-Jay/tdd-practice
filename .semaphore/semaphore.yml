@@ -17,6 +17,9 @@ blocks:
             - 'export PATH=/home/semaphore/go/bin:$PATH'
             - checkout
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 098403c1f403f5a2fd2721e1563a1c62dec3d7cf
 =======
 >>>>>>> 098403c1f403f5a2fd2721e1563a1c62dec3d7cf
             - go get ./...
