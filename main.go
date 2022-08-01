@@ -1,9 +1,14 @@
 package main
 
-import "os"
+import (
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 func main() {
 	a := App{}
+	godotenv.Load("load.env")
 	a.Initialize(
 		os.Getenv("APP_DB_USERNAME"),
 		os.Getenv("APP_DB_PASSWORD"),
