@@ -5,17 +5,41 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: Test
+  - name: Install
     task:
       jobs:
-        - name: go test
+        - name: Download Modules
           commands:
-            - sem-service start postgres
             - sem-version go 1.16
-            - export GO111MODULE=on
-            - export GOPATH=~/go
-            - 'export PATH=/home/semaphore/go/bin:$PATH'
             - checkout
-            - go get ./...
+            - cache restore
+            - go mod vendor
+            - cache store
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+    dependencies: []
+  - name: Test
+    dependencies:
+      - Install
+    task:
+      env_vars:
+        - name: GO111MODULE
+          value: 'on'
+        - name: GOFLAGS
+          value: '-mod=vendor'
+      jobs:
+        - name: Test
+          commands:
             - go test ./...
-            - go build -v .
+  - name: Build
+    dependencies:
+      - Test
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - go build -v -o tdd-practice.bin
+            - artifact push project --force tdd-practice.bin
